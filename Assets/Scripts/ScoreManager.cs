@@ -7,6 +7,7 @@ public class ScoreManager : MonoBehaviour
 
     public int Score { get; private set; } = 0;
     [SerializeField] private TMP_Text scoreText; // Canvas上のTextMeshProオブジェクトをアサイン
+    [SerializeField] private TMP_Text resultText; // 結果表示用（You dieなど）
 
     private void Awake()
     {
@@ -17,13 +18,22 @@ public class ScoreManager : MonoBehaviour
     private void Start()
     {
         UpdateUI();
+        if (resultText != null) resultText.text = ""; // 最初は非表示
     }
 
     public void AddScore(int amount)
     {
         Score += amount;
         UpdateUI();
-        // 必要ならここでエフェクトやイベント発行
+    }
+
+    public void ShowResult(string message)
+    {
+        if (resultText != null)
+        {
+            resultText.text = message;
+            resultText.gameObject.SetActive(true);
+        }
     }
 
     void UpdateUI()

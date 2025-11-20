@@ -7,7 +7,7 @@ public class CameraBasedMovement : MonoBehaviour
 
     void Update()
     {
-        if (cameraTransform == null) return; // Nullチェック
+        if (cameraTransform == null) return;
 
         float h = Input.GetAxis("Horizontal"); // A/D
         float v = Input.GetAxis("Vertical");   // W/S
