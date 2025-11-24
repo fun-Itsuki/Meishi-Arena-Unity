@@ -25,6 +25,10 @@ public class CardBattleLogic : MonoBehaviour
     private float npcMoveTimer = 0f;
     private float npcMoveDuration = 1.0f; // NPCが動く時間
 
+    [Tooltip("アニメーション開始までの待機時間（秒）")]
+    public float timeToStart = 3.0f;
+    private float startTimer = 0f;
+
     void Update()
     {
         if (playerCard == null || npcCard == null) return;
@@ -32,7 +36,14 @@ public class CardBattleLogic : MonoBehaviour
         switch (currentState)
         {
             case BattleState.Waiting:
-                CheckTriggerCondition();
+                // タイマーを加算
+                startTimer += Time.deltaTime;
+                
+                // 指定時間を経過したら開始
+                if (startTimer >= timeToStart)
+                {
+                    StartNPCMove();
+                }
                 break;
             case BattleState.NPCMoving:
                 AnimateNPC();
@@ -40,15 +51,6 @@ public class CardBattleLogic : MonoBehaviour
             case BattleState.Finished:
                 // 何もしない（リセット待ちなど）
                 break;
-        }
-    }
-
-    void CheckTriggerCondition()
-    {
-        // 右クリックでバトル開始（名刺をセットして準備完了）
-        if (Input.GetMouseButtonDown(1))
-        {
-            StartNPCMove();
         }
     }
 
