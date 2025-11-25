@@ -4,8 +4,17 @@ using UnityEngine.SceneManagement;
 public class MoveToCardScene : MonoBehaviour
 {
     public string sceneName = "BusinessCardScene";
+    public GameObject interactionUI; // UI to show when near NPC
 
     private bool isNearNPC = false;
+
+    void Start()
+    {
+        if (interactionUI != null)
+        {
+            interactionUI.SetActive(false);
+        }
+    }
 
     void Update()
     {
@@ -27,6 +36,10 @@ public class MoveToCardScene : MonoBehaviour
         {
             isNearNPC = true;
             Debug.Log("[MoveToCardScene] NPC detected (Tag match)");
+            if (interactionUI != null)
+            {
+                interactionUI.SetActive(true);
+            }
         }
     }
 
@@ -37,6 +50,10 @@ public class MoveToCardScene : MonoBehaviour
         {
             isNearNPC = false;
             Debug.Log("[MoveToCardScene] NPC left (Tag match)");
+            if (interactionUI != null)
+            {
+                interactionUI.SetActive(false);
+            }
         }
     }
 }
