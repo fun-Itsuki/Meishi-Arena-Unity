@@ -9,6 +9,13 @@ public class TitleSceneManager : MonoBehaviour
     public void OnStartButtonClicked()
     {
         Debug.Log("[TitleSceneManager] 始めるボタンがクリックされました");
+        
+        // ボタンクリック音を再生
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayButtonClick();
+        }
+        
         SceneManager.LoadScene("MainScene");
     }
 }

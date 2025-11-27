@@ -34,6 +34,12 @@ public class BattleStartTransition : MonoBehaviour
 
     void Start()
     {
+        // バトル開始音を再生
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayBattleStart();
+        }
+        
         // 初期状態の設定
         if (darkOverlay != null)
         {

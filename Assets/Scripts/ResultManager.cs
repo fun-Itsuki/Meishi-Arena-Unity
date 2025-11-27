@@ -80,6 +80,12 @@ public class ResultManager : MonoBehaviour
     {
         Debug.Log($"[ResultManager] Next Stage button clicked! Attempting to load: {mainSceneName}");
         
+        // ボタンクリック音を再生
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayButtonClick();
+        }
+        
         try
         {
             SceneManager.LoadScene(mainSceneName);
@@ -97,6 +103,12 @@ public class ResultManager : MonoBehaviour
     public void OnRetryButtonClicked()
     {
         Debug.Log("[ResultManager] Retry button clicked!");
+        
+        // ボタンクリック音を再生
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayButtonClick();
+        }
         
         if (ScoreManager.Instance != null && !string.IsNullOrEmpty(ScoreManager.Instance.LastSceneName))
         {
