@@ -2,33 +2,133 @@ using UnityEngine;
 
 public class CardScrollController : MonoBehaviour
 {
-    public float depthSpeed = 0.1f; // 1スクロール(1.0)につき0.1動く
-    public float moveSpeed = 0.1f;  // マウスドラッグによる上下左右移動速度
+    [Header("Position Settings")]
+    [Tooltip("名刺の「上」位置")]
+    public Vector3 topPosition = new Vector3(-12f, 4.5f, 1.63f);
+    
+    [Tooltip("名刺の「中」位置")]
+    public Vector3 middlePosition = new Vector3(-12f, 4.3f, 1.63f);
+    
+    [Tooltip("名刺の「下」位置")]
+    public Vector3 bottomPosition = new Vector3(-12f, 4.1f, 1.63f);
+    
+    [Tooltip("名刺提出時のZ座標")]
+    public float submitZPosition = 4f;
 
+    [Header("Control Settings")]
     public bool canMove = true; // 外部から操作可能かを制御するフラグ
+
+    // 現在の名刺位置（0=上, 1=中, 2=下）
+    private int currentPositionIndex = 1; // デフォルトは「中」
+    private bool isSubmitted = false; // 提出済みフラグ
+
+    // スペースキー押下イベント
+    public System.Action OnSubmit;
+
+    void Start()
+    {
+        // 初期位置を「中」に設定
+        transform.position = middlePosition;
+    }
 
     void Update()
     {
-        if (!canMove) return; // 動かせない時は何もしない
-
-        // 1. スクロールで奥行き（Z軸）操作
-        float scroll = Input.mouseScrollDelta.y;
-        if (Mathf.Abs(scroll) > 0.001f)
+        if (!canMove || isSubmitted)
         {
-            // 入力値の大きさに関わらず、方向（+1 or -1）だけを取得して一定量動かす
-            float direction = Mathf.Sign(scroll);
-            transform.position += new Vector3(0, 0, direction * depthSpeed);
+            // デバッグ: 動けない理由をログ出力
+            if (!canMove && Input.anyKeyDown)
+            {
+                Debug.Log("CardScrollController: canMove is false. Cannot move card.");
+            }
+            if (isSubmitted && Input.anyKeyDown)
+            {
+                Debug.Log("CardScrollController: Card already submitted. Cannot move.");
+            }
+            return;
         }
 
-        // 2. 左クリック中にマウス移動で上下左右（X, Y軸）操作
-        if (Input.GetMouseButton(0))
+        // Wキー: 上に移動
+        if (Input.GetKeyDown(KeyCode.W))
         {
-            float mouseX = Input.GetAxis("Mouse X");
-            float mouseY = Input.GetAxis("Mouse Y");
-
-            // マウスの移動量をワールド座標の移動に変換
-            Vector3 move = new Vector3(mouseX, mouseY, 0) * moveSpeed;
-            transform.position += move;
+            Debug.Log("W key pressed - Moving UP");
+            currentPositionIndex = Mathf.Max(0, currentPositionIndex - 1);
+            UpdatePosition();
         }
+
+        // Sキー: 下に移動
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            Debug.Log("S key pressed - Moving DOWN");
+            currentPositionIndex = Mathf.Min(2, currentPositionIndex + 1);
+            UpdatePosition();
+        }
+
+        // スペースキー: 名刺を提出
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Debug.Log("Space key pressed - Submitting card");
+            SubmitCard();
+        }
+    }
+
+    /// <summary>
+    /// 現在の位置インデックスに応じて名刺の位置を更新
+    /// </summary>
+    void UpdatePosition()
+    {
+        Vector3 targetPosition = middlePosition;
+
+        switch (currentPositionIndex)
+        {
+            case 0:
+                targetPosition = topPosition;
+                break;
+            case 1:
+                targetPosition = middlePosition;
+                break;
+            case 2:
+                targetPosition = bottomPosition;
+                break;
+        }
+
+        transform.position = targetPosition;
+        Debug.Log($"Card position updated to index {currentPositionIndex}: {targetPosition}");
+    }
+
+    /// <summary>
+    /// 名刺を提出する（X座標を変更してイベントを発火）
+    /// </summary>
+    void SubmitCard()
+    {
+        isSubmitted = true;
+        
+        // Z座標を提出位置に変更
+        Vector3 beforePosition = transform.position;
+        Vector3 submitPosition = transform.position;
+        submitPosition.z = submitZPosition;
+        transform.position = submitPosition;
+
+        // 提出イベントを発火
+        OnSubmit?.Invoke();
+        
+        Debug.Log($"Card submitted! Position index: {currentPositionIndex}, Before: {beforePosition}, After: {submitPosition}");
+    }
+
+    /// <summary>
+    /// 次の交換のために状態をリセット
+    /// </summary>
+    public void ResetForNextExchange()
+    {
+        isSubmitted = false;
+        currentPositionIndex = 1; // 中央にリセット
+        transform.position = middlePosition;
+    }
+
+    /// <summary>
+    /// 現在の位置インデックスを取得（0=上, 1=中, 2=下）
+    /// </summary>
+    public int GetCurrentPositionIndex()
+    {
+        return currentPositionIndex;
     }
 }

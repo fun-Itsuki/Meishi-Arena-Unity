@@ -12,6 +12,11 @@ public class ScoreManager : MonoBehaviour
     public string LastBattleResult { get; private set; } = "";
     public string LastSceneName { get; private set; } = "";
     
+    // 連続交換の統計情報
+    public int CurrentExchangeNumber { get; set; } = 0;
+    public int SuccessCount { get; set; } = 0;
+    public int FailureCount { get; set; } = 0;
+    
     [SerializeField] private TMP_Text scoreText; // Canvas上のTextMeshProオブジェクトをアサイン
     [SerializeField] private TMP_Text resultText; // 結果表示用（You dieなど）
 
