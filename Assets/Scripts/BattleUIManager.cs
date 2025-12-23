@@ -16,14 +16,34 @@ public class BattleUIManager : MonoBehaviour
     [Tooltip("NPC役職表示用テキスト")]
     public TMP_Text npcRankText;
 
+    [Header("Life UI")]
+    public GameObject[] heartIcons; // ハートアイコンの配列(3つ)
+
     /// <summary>
     /// 交換回数を更新
     /// </summary>
-    public void UpdateExchangeCount(int current, int total)
+    public void UpdateExchangeCount(int current)
     {
         if (exchangeCountText != null)
         {
-            exchangeCountText.text = $"{current}/{total}人目";
+            exchangeCountText.text = $"{current}人目";
+        }
+    }
+
+    /// <summary>
+    /// 残りライフを更新
+    /// </summary>
+    public void UpdateLives(int lives)
+    {
+        if (heartIcons != null)
+        {
+            for (int i = 0; i < heartIcons.Length; i++)
+            {
+                if (heartIcons[i] != null)
+                {
+                    heartIcons[i].SetActive(i < lives);
+                }
+            }
         }
     }
 

@@ -15,9 +15,9 @@ public class CardBattleLogic : MonoBehaviour
     private float npcMoveDuration = 1.0f; // NPCが動く時間
     private Vector3 npcInitialPosition; // NPCカードの初期位置
 
-    [Header("Exchange Settings")]
-    [Tooltip("総交換回数")]
-    public int totalExchanges = 10;
+    [Header("Life Settings")]
+    [Tooltip("最大ライフ数")]
+    public int maxLives = 3;
     
     [Tooltip("1回の交換制限時間(秒)")]
     public float exchangeTimeLimit = 2.0f;
@@ -53,8 +53,9 @@ public class CardBattleLogic : MonoBehaviour
     private enum BattleState { WaitingForTransition, PlayerTurn, Judging, NextExchange, AllComplete }
     private BattleState currentState = BattleState.WaitingForTransition;
 
-    // 連続交換用の変数
-    private int currentExchangeCount = 0; // 現在の交換回数（0〜9）
+    // ライフシステム用の変数
+    private int remainingLives; // 残りライフ数
+    private int totalExchangeCount = 0; // 総交換回数（統計用）
     private NPCRank currentNPCRank; // 現在のNPCの役職
     private float exchangeTimer = 0f; // 現在の交換の経過時間
     private float npcMoveTimer = 0f; // NPC移動タイマー
@@ -70,6 +71,15 @@ public class CardBattleLogic : MonoBehaviour
         if (npcCard != null)
         {
             npcInitialPosition = npcCard.position;
+        }
+
+        // ライフを初期化
+        remainingLives = maxLives;
+
+        // スコアをリセット
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.ResetScore();
         }
 
         // プレイヤーコントローラーのイベントを登録
@@ -168,14 +178,15 @@ public class CardBattleLogic : MonoBehaviour
         // NPC役職をランダムに決定
         currentNPCRank = (NPCRank)Random.Range(0, 3);
         
-        Debug.Log($"Exchange {currentExchangeCount + 1}/{totalExchanges} started. NPC Rank: {currentNPCRank}");
+        Debug.Log($"Exchange {totalExchangeCount + 1} started. NPC Rank: {currentNPCRank}, Remaining Lives: {remainingLives}");
 
         // UI更新
         if (uiManager != null)
         {
-            uiManager.UpdateExchangeCount(currentExchangeCount + 1, totalExchanges);
+            uiManager.UpdateExchangeCount(totalExchangeCount + 1); // 総交換回数のみ表示
             uiManager.UpdateNPCRank(currentNPCRank);
             uiManager.UpdateTimer(exchangeTimeLimit);
+            uiManager.UpdateLives(remainingLives); // ライフ表示を更新
         }
 
         // 初期状態設定
@@ -190,7 +201,7 @@ public class CardBattleLogic : MonoBehaviour
         }
 
         // 演出がある場合は待機、ない場合は即座にプレイヤーターンへ
-        if (transitionController != null && currentExchangeCount == 0)
+        if (transitionController != null && totalExchangeCount == 0)
         {
             currentState = BattleState.WaitingForTransition;
         }
@@ -265,8 +276,15 @@ public class CardBattleLogic : MonoBehaviour
         else
         {
             failureCount++;
+            remainingLives--; // ライフを減らす
             ScoreManager.Instance.ShowResult("Failed!");
-            Debug.Log("Failed! -100 points");
+            Debug.Log($"Failed! -100 points. Remaining Lives: {remainingLives}");
+            
+            // ライフUI更新
+            if (uiManager != null)
+            {
+                uiManager.UpdateLives(remainingLives);
+            }
         }
 
         // NPCアニメーション開始
@@ -281,12 +299,12 @@ public class CardBattleLogic : MonoBehaviour
     /// </summary>
     void PrepareNextExchange()
     {
-        currentExchangeCount++;
+        totalExchangeCount++;
 
-        // 全交換完了チェック
-        if (currentExchangeCount >= totalExchanges)
+        // ゲームオーバーチェック（ライフ0以下）
+        if (remainingLives <= 0)
         {
-            FinishAllExchanges();
+            FinishGame();
         }
         else
         {
@@ -296,13 +314,13 @@ public class CardBattleLogic : MonoBehaviour
     }
 
     /// <summary>
-    /// 全交換完了処理
+    /// ゲーム終了処理
     /// </summary>
-    void FinishAllExchanges()
+    void FinishGame()
     {
         currentState = BattleState.AllComplete;
 
-        Debug.Log($"All exchanges complete! Success: {successCount}, Failure: {failureCount}");
+        Debug.Log($"Game Over! Total Exchanges: {totalExchangeCount}, Success: {successCount}, Failure: {failureCount}");
 
         // 最終結果を保存
         string currentSceneName = SceneManager.GetActiveScene().name;
@@ -310,7 +328,7 @@ public class CardBattleLogic : MonoBehaviour
             $"Success: {successCount}, Failure: {failureCount}", currentSceneName);
         
         // ScoreManagerに統計情報を保存
-        ScoreManager.Instance.CurrentExchangeNumber = totalExchanges;
+        ScoreManager.Instance.CurrentExchangeNumber = totalExchangeCount;
         ScoreManager.Instance.SuccessCount = successCount;
         ScoreManager.Instance.FailureCount = failureCount;
 
