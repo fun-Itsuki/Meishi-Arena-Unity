@@ -20,7 +20,7 @@ public class CardBattleLogic : MonoBehaviour
     public int maxLives = 3;
     
     [Tooltip("1回の交換制限時間(秒)")]
-    public float exchangeTimeLimit = 2.0f;
+    public float exchangeTimeLimit = 1.5f;
     
     [Tooltip("次の交換までの待機時間(秒)")]
     public float nextExchangeDelay = 1.0f;
@@ -47,7 +47,19 @@ public class CardBattleLogic : MonoBehaviour
     public BattleUIManager uiManager;
 
     // NPC役職の定義
-    public enum NPCRank { Top, Middle, Bottom }
+    public enum NPCRank 
+    { 
+        Employee,   // 一般社員 (0)
+        Shunin,     // 主任 (1)
+        Keicho,     // 係長 (2)
+        Kacho,      // 課長 (3)
+        Jicho,      // 次長 (4)
+        Bucho,      // 部長 (5)
+        Honbucho,   // 本部長 (6)
+        Jomu,       // 常務 (7)
+        Senmu,      // 専務 (8)
+        Fukushacho  // 副社長 (9)
+    }
     
     // 状態管理
     private enum BattleState { WaitingForTransition, PlayerTurn, Judging, NextExchange, AllComplete }
@@ -175,8 +187,16 @@ public class CardBattleLogic : MonoBehaviour
             npcAnimator.Update(0f);
         }
 
-        // NPC役職をランダムに決定
-        currentNPCRank = (NPCRank)Random.Range(0, 3);
+        // プレイヤーの現在の役職レベルを取得
+        int playerLevel = ScoreManager.Instance != null ? ScoreManager.Instance.GetPlayerRankLevel() : 0;
+        
+        // プレイヤーの役職の上下ひとつずつ（-1, 0, +1）の範囲でランダムに選ぶ
+        int npcLevel = playerLevel + Random.Range(-1, 2);
+        
+        // 範囲 (0～9) に制限
+        npcLevel = Mathf.Clamp(npcLevel, 0, 9);
+        
+        currentNPCRank = (NPCRank)npcLevel;
         
         Debug.Log($"Exchange {totalExchangeCount + 1} started. NPC Rank: {currentNPCRank}, Remaining Lives: {remainingLives}");
 
@@ -244,21 +264,25 @@ public class CardBattleLogic : MonoBehaviour
         // タイムアウトでない場合のみ判定
         if (playerPosition != -1)
         {
-            // 判定ロジック
-            // NPC「上」→ プレイヤー「下」(2) で成功
-            // NPC「中」→ プレイヤー「中」(1) で成功
-            // NPC「下」→ プレイヤー「上」(0) で成功
-            switch (currentNPCRank)
+            // プレイヤーのランクレベル (0～7)
+            int playerLevel = ScoreManager.Instance.GetPlayerRankLevel();
+            // NPCのランクレベル (0～9)
+            int npcLevel = (int)currentNPCRank;
+
+            if (playerLevel == npcLevel)
             {
-                case NPCRank.Top:
-                    isSuccess = (playerPosition == 2); // 下
-                    break;
-                case NPCRank.Middle:
-                    isSuccess = (playerPosition == 1); // 中
-                    break;
-                case NPCRank.Bottom:
-                    isSuccess = (playerPosition == 0); // 上
-                    break;
+                // 同じ役職なら「中」(1) で成功
+                isSuccess = (playerPosition == 1);
+            }
+            else if (playerLevel < npcLevel)
+            {
+                // プレイヤーが格下なら「下」(2) で成功
+                isSuccess = (playerPosition == 2);
+            }
+            else
+            {
+                // プレイヤーが格上なら「上」(0) で成功
+                isSuccess = (playerPosition == 0);
             }
         }
 

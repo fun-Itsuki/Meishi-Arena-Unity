@@ -16,6 +16,9 @@ public class BattleUIManager : MonoBehaviour
     [Tooltip("NPC役職表示用テキスト")]
     public TMP_Text npcRankText;
 
+    [Tooltip("プレイヤー役職表示用テキスト")]
+    public TMP_Text playerTitleText;
+
     [Header("Life UI")]
     public GameObject[] heartIcons; // ハートアイコンの配列(3つ)
 
@@ -81,14 +84,35 @@ public class BattleUIManager : MonoBehaviour
             string rankText = "";
             switch (rank)
             {
-                case CardBattleLogic.NPCRank.Top:
-                    rankText = "上";
+                case CardBattleLogic.NPCRank.Employee:
+                    rankText = "一般社員";
                     break;
-                case CardBattleLogic.NPCRank.Middle:
-                    rankText = "中";
+                case CardBattleLogic.NPCRank.Shunin:
+                    rankText = "主任";
                     break;
-                case CardBattleLogic.NPCRank.Bottom:
-                    rankText = "下";
+                case CardBattleLogic.NPCRank.Keicho:
+                    rankText = "係長";
+                    break;
+                case CardBattleLogic.NPCRank.Kacho:
+                    rankText = "課長";
+                    break;
+                case CardBattleLogic.NPCRank.Jicho:
+                    rankText = "次長";
+                    break;
+                case CardBattleLogic.NPCRank.Bucho:
+                    rankText = "部長";
+                    break;
+                case CardBattleLogic.NPCRank.Honbucho:
+                    rankText = "本部長";
+                    break;
+                case CardBattleLogic.NPCRank.Jomu:
+                    rankText = "常務";
+                    break;
+                case CardBattleLogic.NPCRank.Senmu:
+                    rankText = "専務";
+                    break;
+                case CardBattleLogic.NPCRank.Fukushacho:
+                    rankText = "副社長";
                     break;
             }
             npcRankText.text = $"相手の役職: {rankText}";
@@ -101,6 +125,12 @@ public class BattleUIManager : MonoBehaviour
         if (ScoreManager.Instance != null)
         {
             UpdateScore(ScoreManager.Instance.Score);
+            
+            // プレイヤーの役職を更新
+            if (playerTitleText != null)
+            {
+                playerTitleText.text = $"現在の役職: {ScoreManager.Instance.GetPlayerTitle()}";
+            }
         }
     }
 }

@@ -73,4 +73,37 @@ public class ScoreManager : MonoBehaviour
         if (scoreText != null)
             scoreText.text = $"Score: {Score}";
     }
+
+    /// <summary>
+    /// 現在のスコアに基づいた役職レベル（0～7）を返す
+    /// </summary>
+    public int GetPlayerRankLevel()
+    {
+        if (Score >= 12000) return 7; // 常務
+        if (Score >= 9000) return 6;  // 本部長
+        if (Score >= 6500) return 5;  // 部長
+        if (Score >= 4500) return 4;  // 次長
+        if (Score >= 3000) return 3;  // 課長
+        if (Score >= 2000) return 2;  // 係長
+        if (Score >= 1000) return 1;  // 主任
+        return 0; // 一般社員
+    }
+
+    /// <summary>
+    /// 現在のスコアに基づいた役職名を返す
+    /// </summary>
+    public string GetPlayerTitle()
+    {
+        switch (GetPlayerRankLevel())
+        {
+            case 7: return "常務";
+            case 6: return "本部長";
+            case 5: return "部長";
+            case 4: return "次長";
+            case 3: return "課長";
+            case 2: return "係長";
+            case 1: return "主任";
+            default: return "一般社員";
+        }
+    }
 }
