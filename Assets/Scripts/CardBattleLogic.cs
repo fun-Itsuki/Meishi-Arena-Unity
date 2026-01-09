@@ -100,6 +100,12 @@ public class CardBattleLogic : MonoBehaviour
             playerController.OnSubmit += OnPlayerSubmit;
         }
 
+        // BGMを再生
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayBGM();
+        }
+
         // 最初の交換を開始
         StartNewExchange();
     }

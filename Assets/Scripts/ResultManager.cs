@@ -6,6 +6,7 @@ public class ResultManager : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private TextMeshProUGUI rankText;
+    [SerializeField] private TextMeshProUGUI titleText; // 役職表示用
     [SerializeField] private TextMeshProUGUI scoreText;
 
     [Header("Scene Names")]
@@ -50,6 +51,13 @@ public class ResultManager : MonoBehaviour
         if (scoreText != null)
         {
             scoreText.text = $"Battle Score: {battleScore}";
+        }
+
+        // 役職表示
+        if (titleText != null)
+        {
+            string playerTitle = ScoreManager.Instance.GetPlayerTitle(battleScore);
+            titleText.text = $"役職: {playerTitle}";
         }
 
         Debug.Log($"Result: {result}, Rank: {rank}, Battle Score: {battleScore}");
