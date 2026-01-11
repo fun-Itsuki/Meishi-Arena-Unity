@@ -331,6 +331,12 @@ public class CardBattleLogic : MonoBehaviour
     {
         totalExchangeCount++;
 
+        // 累計交換数を加算
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.AddTotalExchangedCount(1);
+        }
+
         // ゲームオーバーチェック（ライフ0以下）
         if (remainingLives <= 0)
         {

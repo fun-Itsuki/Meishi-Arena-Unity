@@ -852,8 +852,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResultManager
   rankText: {fileID: 2086124510}
+  titleText: {fileID: 0}
   scoreText: {fileID: 1636662498}
-  totalScoreText: {fileID: 765836463}
+  totalExchangedText: {fileID: 0}
   mainSceneName: MainScene
 --- !u!4 &1303755699
 Transform:

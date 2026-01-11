@@ -1,5 +1,13 @@
 using UnityEngine;
 using TMPro;
+using System.IO;
+
+[System.Serializable]
+public class SaveData
+{
+    public int totalExchangedCount = 0;
+    public int highScore = 0;
+}
 
 public class ScoreManager : MonoBehaviour
 {
@@ -19,6 +27,33 @@ public class ScoreManager : MonoBehaviour
     
     [SerializeField] private TMP_Text scoreText; // Canvas上のTextMeshProオブジェクトをアサイン
     [SerializeField] private TMP_Text resultText; // 結果表示用（You dieなど）
+
+    private SaveData currentSaveData = new SaveData();
+    private string baseSaveFileName = "save_data";
+    private int activeSlotIndex = 0;
+
+    public int TotalExchangedCount => currentSaveData.totalExchangedCount;
+
+    /// <summary>
+    /// 指定したスロットにセーブファイルが存在するか
+    /// </summary>
+    public bool HasSaveFile(int slot)
+    {
+        return File.Exists(GetSaveFilePath(slot));
+    }
+
+    /// <summary>
+    /// いずれかのスロットにセーブファイルが存在するか
+    /// </summary>
+    public bool HasAnySaveFile()
+    {
+        return HasSaveFile(0) || HasSaveFile(1);
+    }
+
+    private string GetSaveFilePath(int slot)
+    {
+        return Path.Combine(Application.persistentDataPath, $"{baseSaveFileName}_{slot}.json");
+    }
 
     private void Awake()
     {
@@ -121,5 +156,87 @@ public class ScoreManager : MonoBehaviour
             case 1: return "主任";
             default: return "一般社員";
         }
+    }
+
+    /// <summary>
+    /// 操作対象のスロットを設定し、データをロードする
+    /// </summary>
+    public void SetActiveSlot(int slot)
+    {
+        activeSlotIndex = slot;
+        Load();
+    }
+
+    public void AddTotalExchangedCount(int amount)
+    {
+        currentSaveData.totalExchangedCount += amount;
+        Save();
+    }
+
+    private void Save()
+    {
+        try
+        {
+            string path = GetSaveFilePath(activeSlotIndex);
+            string json = JsonUtility.ToJson(currentSaveData, true);
+            File.WriteAllText(path, json);
+            Debug.Log($"Data saved to slot {activeSlotIndex}: {path}");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to save data: {e.Message}");
+        }
+    }
+
+    private void Load()
+    {
+        try
+        {
+            string path = GetSaveFilePath(activeSlotIndex);
+            if (File.Exists(path))
+            {
+                string json = File.ReadAllText(path);
+                currentSaveData = JsonUtility.FromJson<SaveData>(json);
+                Debug.Log($"Data loaded from slot {activeSlotIndex}.");
+            }
+            else
+            {
+                currentSaveData = new SaveData();
+                Debug.Log($"No save file for slot {activeSlotIndex}. Created new SaveData.");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to load data from slot {activeSlotIndex}: {e.Message}");
+            currentSaveData = new SaveData();
+        }
+    }
+
+    /// <summary>
+    /// 指定スロットのセーブデータを削除し、初期状態に戻す
+    /// </summary>
+    public void ClearSlot(int slot)
+    {
+        string path = GetSaveFilePath(slot);
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+            Debug.Log($"Save file for slot {slot} deleted.");
+        }
+        
+        if (slot == activeSlotIndex)
+        {
+            currentSaveData = new SaveData();
+            ResetScore();
+        }
+    }
+
+    /// <summary>
+    /// 現在のスロットのデータをリセットする
+    /// </summary>
+    [System.Obsolete("Use ClearSlot instead")]
+    public void ClearSaveData()
+    {
+        ClearSlot(activeSlotIndex);
     }
 }

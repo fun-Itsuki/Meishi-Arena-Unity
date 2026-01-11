@@ -3103,6 +3103,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   buttonClickSound: {fileID: 8300000, guid: 132d8d16bdfe10946a31c5a00275103a, type: 3}
   battleStartSound: {fileID: 8300000, guid: fd90c829e72fed64ab048ca2b05845ec, type: 3}
+  bgmClip: {fileID: 8300000, guid: d6d73c62cd639e04196006874e152d8d, type: 3}
 --- !u!4 &1477235478
 Transform:
   m_ObjectHideFlags: 0

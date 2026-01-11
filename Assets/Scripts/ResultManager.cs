@@ -8,6 +8,7 @@ public class ResultManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI rankText;
     [SerializeField] private TextMeshProUGUI titleText; // 役職表示用
     [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI totalExchangedText; // 累計表示用
 
     [Header("Scene Names")]
     [SerializeField] private string mainSceneName = "MainScene";
@@ -58,6 +59,12 @@ public class ResultManager : MonoBehaviour
         {
             string playerTitle = ScoreManager.Instance.GetPlayerTitle(battleScore);
             titleText.text = $"役職: {playerTitle}";
+        }
+
+        // 累計表示
+        if (totalExchangedText != null)
+        {
+            totalExchangedText.text = $"生涯獲得枚数: {ScoreManager.Instance.TotalExchangedCount}枚";
         }
 
         Debug.Log($"Result: {result}, Rank: {rank}, Battle Score: {battleScore}");
