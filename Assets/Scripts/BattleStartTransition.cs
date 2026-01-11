@@ -34,10 +34,10 @@ public class BattleStartTransition : MonoBehaviour
 
     void Start()
     {
-        // バトル開始音を再生
+        // 最初の2秒カウント開始時にだけゴングを鳴らす
         if (AudioManager.Instance != null)
         {
-            AudioManager.Instance.PlayBattleStart();
+            AudioManager.Instance.PlayBattleGong();
         }
         
         // 初期状態の設定

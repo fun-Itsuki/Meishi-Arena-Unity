@@ -70,8 +70,18 @@ public class ScoreManager : MonoBehaviour
 
     public void AddScore(int amount)
     {
+        int prevRank = GetPlayerRankLevel();
         Score += amount;
         UpdateUI();
+
+        int newRank = GetPlayerRankLevel();
+        if (newRank > prevRank)
+        {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayRankUp();
+            }
+        }
     }
 
     public void ShowResult(string message)

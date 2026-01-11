@@ -13,6 +13,8 @@ public class AudioManager : MonoBehaviour
     
     [Tooltip("バトル開始時の効果音")]
     public AudioClip battleStartSound;
+    [Tooltip("試合開始のゴング効果音（最初の2秒カウント開始時にのみ再生）")]
+    public AudioClip battleGongSound;
     
     [Tooltip("1つ目のハートが減ったときの効果音（例: 「うっ！」）")]
     public AudioClip heartHurtSound1;
@@ -25,6 +27,9 @@ public class AudioManager : MonoBehaviour
     
     [Tooltip("正解時の効果音（例: クイズ正解5）")]
     public AudioClip correctAnswerSound;
+    
+    [Tooltip("役職が上がったときの効果音（例: 決定ボタンを押す10(1)）")]
+    public AudioClip rankUpSound;
 
     [Header("BGM")]
     [Tooltip("背景音楽のクリップ")]
@@ -138,6 +143,22 @@ public class AudioManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 試合開始のゴングを再生（カウントダウン開始時に1回だけ）
+    /// </summary>
+    public void PlayBattleGong()
+    {
+        if (battleGongSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(battleGongSound);
+            Debug.Log("Playing battle gong sound");
+        }
+        else
+        {
+            Debug.LogWarning("battleGongSound or AudioSource is not assigned!");
+        }
+    }
+
+    /// <summary>
     /// ライフ0時の叫び効果音を再生
     /// </summary>
     public void PlayHeartDeath()
@@ -198,6 +219,22 @@ public class AudioManager : MonoBehaviour
         else
         {
             Debug.LogWarning("correctAnswerSound or AudioSource is not assigned!");
+        }
+    }
+
+    /// <summary>
+    /// 役職が上がった時の効果音を再生
+    /// </summary>
+    public void PlayRankUp()
+    {
+        if (rankUpSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(rankUpSound);
+            Debug.Log("Playing rank-up sound");
+        }
+        else
+        {
+            Debug.LogWarning("rankUpSound or AudioSource is not assigned!");
         }
     }
 }
