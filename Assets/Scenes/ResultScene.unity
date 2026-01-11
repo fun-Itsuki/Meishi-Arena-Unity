@@ -286,7 +286,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   buttonClickSound: {fileID: 8300000, guid: 132d8d16bdfe10946a31c5a00275103a, type: 3}
   battleStartSound: {fileID: 8300000, guid: fd90c829e72fed64ab048ca2b05845ec, type: 3}
+  heartHurtSound1: {fileID: 8300000, guid: 08084dbc73f84db40bc99313d85f43da, type: 3}
+  heartHurtSound2: {fileID: 8300000, guid: 8f36620a91643924280ce1680306d6b6, type: 3}
+  heartDeathSound: {fileID: 8300000, guid: bbccbcc0fa9fee143a22272679f2eac1, type: 3}
+  correctAnswerSound: {fileID: 8300000, guid: 2dd8de14ac544864ea57c2270948c3d8, type: 3}
   bgmClip: {fileID: 0}
+  titleBGM: {fileID: 8300000, guid: 9c0f561474397484d80201f4fbfeab60, type: 3}
 --- !u!4 &414163440
 Transform:
   m_ObjectHideFlags: 0
