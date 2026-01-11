@@ -1300,6 +1300,7 @@ MonoBehaviour:
   buttonClickSound: {fileID: 8300000, guid: 132d8d16bdfe10946a31c5a00275103a, type: 3}
   battleStartSound: {fileID: 8300000, guid: fd90c829e72fed64ab048ca2b05845ec, type: 3}
   bgmClip: {fileID: 0}
+  titleBGM: {fileID: 8300000, guid: 9c0f561474397484d80201f4fbfeab60, type: 3}
 --- !u!4 &575050213
 Transform:
   m_ObjectHideFlags: 0

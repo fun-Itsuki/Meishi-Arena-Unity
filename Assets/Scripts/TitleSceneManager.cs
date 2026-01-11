@@ -200,6 +200,28 @@ public class TitleSceneManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        // タイトルシーン開始時にタイトル用BGMを再生
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayBGM(AudioManager.Instance.titleBGM);
+        }
+        else
+        {
+            Debug.LogWarning("AudioManager instance not found in scene. Title BGM will not play.");
+        }
+    }
+
+    private void OnDisable()
+    {
+        // タイトルシーンを離れるときにはタイトルBGMを停止
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopBGM();
+        }
+    }
+
     private void StartGame()
     {
         string sceneName = "MainScene";

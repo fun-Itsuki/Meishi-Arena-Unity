@@ -13,10 +13,21 @@ public class AudioManager : MonoBehaviour
     
     [Tooltip("バトル開始時の効果音")]
     public AudioClip battleStartSound;
+    
+    [Tooltip("1つ目のハートが減ったときの効果音（例: 「うっ！」）")]
+    public AudioClip heartHurtSound1;
+
+    [Tooltip("2つ目のハートが減ったときの効果音（例: 「ぐおっ！」）")]
+    public AudioClip heartHurtSound2;
+    
+    [Tooltip("ライフが0になった時の効果音（例: 「ぎゃああーー！」）")]
+    public AudioClip heartDeathSound;
 
     [Header("BGM")]
     [Tooltip("背景音楽のクリップ")]
     public AudioClip bgmClip;
+    [Tooltip("タイトルシーン用のBGM（例: 古代神殿_loop_free））")]
+    public AudioClip titleBGM;
     private AudioSource bgmSource;
     private AudioSource audioSource;
 
@@ -43,6 +54,15 @@ public class AudioManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+        }
+    }
+
+    private void Start()
+    {
+        // 可能であれば、Inspectorで割り当てられていない場合はログで通知する
+        if (titleBGM == null)
+        {
+            Debug.Log("AudioManager: titleBGM is not assigned. Assign '古代神殿_loop_free' in the inspector if you want automatic Title BGM.");
         }
     }
 
@@ -111,6 +131,54 @@ public class AudioManager : MonoBehaviour
         else
         {
             Debug.LogWarning("Battle start sound or AudioSource is not assigned!");
+        }
+    }
+
+    /// <summary>
+    /// ライフ0時の叫び効果音を再生
+    /// </summary>
+    public void PlayHeartDeath()
+    {
+        if (heartDeathSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(heartDeathSound);
+            Debug.Log("Playing heart-death sound");
+        }
+        else
+        {
+            Debug.LogWarning("heartDeathSound or AudioSource is not assigned!");
+        }
+    }
+
+    /// <summary>
+    /// 1つ目のハート喪失時の効果音を再生
+    /// </summary>
+    public void PlayHeartHurt1()
+    {
+        if (heartHurtSound1 != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(heartHurtSound1);
+            Debug.Log("Playing heart-hurt-1 sound");
+        }
+        else
+        {
+            Debug.LogWarning("heartHurtSound1 or AudioSource is not assigned!");
+        }
+    }
+
+    /// <summary>
+    /// 2つ目のハート喪失時の効果音を再生
+    /// </summary>
+    public void PlayHeartHurt2()
+    {
+        if (heartHurtSound2 != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(heartHurtSound2);
+            Debug.Log("Playing heart-hurt-2 sound");
+        }
+        else
+        {
+            Debug.LogWarning("heartHurtSound2 or AudioSource is not assigned!");
         }
     }
 }

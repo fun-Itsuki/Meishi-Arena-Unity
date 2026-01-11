@@ -306,6 +306,7 @@ public class CardBattleLogic : MonoBehaviour
         else
         {
             failureCount++;
+            int prevLives = remainingLives;
             remainingLives--; // ライフを減らす
             ScoreManager.Instance.ShowResult("Failed!");
             Debug.Log($"Failed! -100 points. Remaining Lives: {remainingLives}");
@@ -314,6 +315,23 @@ public class CardBattleLogic : MonoBehaviour
             if (uiManager != null)
             {
                 uiManager.UpdateLives(remainingLives);
+            }
+
+            // 効果音再生: 1つ目/2つ目/0(死亡)の順で分岐
+            if (AudioManager.Instance != null)
+            {
+                if (remainingLives <= 0)
+                {
+                    AudioManager.Instance.PlayHeartDeath();
+                }
+                else if (prevLives == 3 && remainingLives == 2)
+                {
+                    AudioManager.Instance.PlayHeartHurt1(); // 1つ目が減った
+                }
+                else if (prevLives == 2 && remainingLives == 1)
+                {
+                    AudioManager.Instance.PlayHeartHurt2(); // 2つ目が減った
+                }
             }
         }
 
