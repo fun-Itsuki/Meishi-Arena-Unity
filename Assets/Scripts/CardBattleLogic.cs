@@ -302,6 +302,11 @@ public class CardBattleLogic : MonoBehaviour
             successCount++;
             ScoreManager.Instance.ShowResult("Success!");
             Debug.Log("Success! +100 points");
+            // ハートが減らなかった（成功）場合の効果音を再生
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayCorrectSound();
+            }
         }
         else
         {

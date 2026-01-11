@@ -22,6 +22,9 @@ public class AudioManager : MonoBehaviour
     
     [Tooltip("ライフが0になった時の効果音（例: 「ぎゃああーー！」）")]
     public AudioClip heartDeathSound;
+    
+    [Tooltip("正解時の効果音（例: クイズ正解5）")]
+    public AudioClip correctAnswerSound;
 
     [Header("BGM")]
     [Tooltip("背景音楽のクリップ")]
@@ -179,6 +182,22 @@ public class AudioManager : MonoBehaviour
         else
         {
             Debug.LogWarning("heartHurtSound2 or AudioSource is not assigned!");
+        }
+    }
+
+    /// <summary>
+    /// 正解（ハートが減らなかった）時の効果音を再生
+    /// </summary>
+    public void PlayCorrectSound()
+    {
+        if (correctAnswerSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(correctAnswerSound);
+            Debug.Log("Playing correct-answer sound");
+        }
+        else
+        {
+            Debug.LogWarning("correctAnswerSound or AudioSource is not assigned!");
         }
     }
 }
