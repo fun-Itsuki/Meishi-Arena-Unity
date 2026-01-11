@@ -3111,6 +3111,7 @@ MonoBehaviour:
   rankUpSound: {fileID: 8300000, guid: c12462e78bf7db84289785fe8a10ceaf, type: 3}
   bgmClip: {fileID: 0}
   titleBGM: {fileID: 8300000, guid: 9c0f561474397484d80201f4fbfeab60, type: 3}
+  seisenBGM: {fileID: 8300000, guid: 509ba0aa2d58dbe43a0a40efd201c2a2, type: 3}
 --- !u!4 &1477235478
 Transform:
   m_ObjectHideFlags: 0

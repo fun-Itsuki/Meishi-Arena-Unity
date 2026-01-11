@@ -103,7 +103,15 @@ public class CardBattleLogic : MonoBehaviour
         // BGMを再生
         if (AudioManager.Instance != null)
         {
-            AudioManager.Instance.PlayBGM();
+            // 聖戦用のBGMが指定されていればそれを使用し、無ければデフォルトを再生
+            if (AudioManager.Instance.seisenBGM != null)
+            {
+                AudioManager.Instance.PlayBGM(AudioManager.Instance.seisenBGM);
+            }
+            else
+            {
+                AudioManager.Instance.PlayBGM();
+            }
         }
 
         // 最初の交換を開始
@@ -326,9 +334,10 @@ public class CardBattleLogic : MonoBehaviour
             if (AudioManager.Instance != null)
             {
                 if (remainingLives <= 0)
-                {
-                    AudioManager.Instance.PlayHeartDeath();
-                }
+                    {   
+                        AudioManager.Instance.StopBGM();
+                        AudioManager.Instance.PlayHeartDeath();
+                    }
                 else if (prevLives == 3 && remainingLives == 2)
                 {
                     AudioManager.Instance.PlayHeartHurt1(); // 1つ目が減った
@@ -380,6 +389,12 @@ public class CardBattleLogic : MonoBehaviour
         currentState = BattleState.AllComplete;
 
         Debug.Log($"Game Over! Total Exchanges: {totalExchangeCount}, Success: {successCount}, Failure: {failureCount}");
+
+        // BGMを停止（ハート0で聖戦終了）
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopBGM();
+        }
 
         // 最終結果を保存
         string currentSceneName = SceneManager.GetActiveScene().name;
