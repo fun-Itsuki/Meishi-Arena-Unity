@@ -239,4 +239,20 @@ public class AudioManager : MonoBehaviour
             Debug.LogWarning("rankUpSound or AudioSource is not assigned!");
         }
     }
+
+    /// <summary>
+    /// BGMが再生中かどうかを確認
+    /// </summary>
+    public bool IsBGMPlaying()
+    {
+        return bgmSource != null && bgmSource.isPlaying;
+    }
+
+    /// <summary>
+    /// 現在の BGM クリップを取得
+    /// </summary>
+    public AudioClip GetCurrentBGMClip()
+    {
+        return bgmSource != null ? bgmSource.clip : null;
+    }
 }
