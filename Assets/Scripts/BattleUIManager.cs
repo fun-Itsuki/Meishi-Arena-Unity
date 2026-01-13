@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class BattleUIManager : MonoBehaviour
 {
@@ -12,6 +13,12 @@ public class BattleUIManager : MonoBehaviour
     
     [Tooltip("残り時間表示用テキスト")]
     public TMP_Text timerText;
+    
+    [Tooltip("残り時間をバーで表示（Image コンポーネント。Fill Amount で表示）")]
+    public Image timerBarImage;
+
+    [Tooltip("タイマーバーの最大時間（秒）")]
+    public float maxTimerDuration = 1.5f;
     
     [Tooltip("NPC役職表示用テキスト")]
     public TMP_Text npcRankText;
@@ -71,6 +78,14 @@ public class BattleUIManager : MonoBehaviour
             // 0以下にならないようにクランプ
             remainingTime = Mathf.Max(0, remainingTime);
             timerText.text = $"残り時間: {remainingTime:F1}秒";
+        }
+
+        // プログレスバーを更新
+        if (timerBarImage != null)
+        {
+            // remainingTime が最大時間に対して何割か計算
+            float fillAmount = Mathf.Clamp01(remainingTime / maxTimerDuration);
+            timerBarImage.fillAmount = fillAmount;
         }
     }
 
