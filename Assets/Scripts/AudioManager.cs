@@ -34,7 +34,7 @@ public class AudioManager : MonoBehaviour
     [Tooltip("ダメージを受けた時のボイス（複数登録でランダム再生）")]
     public AudioClip[] damageVoices;
 
-    [Tooltip("正解時に流す坂下ボイス（複数登録でランダム再生）")]
+    [Tooltip("正解時に流す坂下ボイス（複数登録でランダム再生。例：うまい！、うまい～、お見事②、まだまだ、やるじゃないか）")]
     public AudioClip[] sakashitaCorrectVoices;
 
     [Header("BGM")]
