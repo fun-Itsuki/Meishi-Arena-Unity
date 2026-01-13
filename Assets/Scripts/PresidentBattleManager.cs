@@ -27,7 +27,15 @@ public class PresidentBattleManager : MonoBehaviour
     [Header("Blowback演出")]
     [SerializeField] private Rigidbody blowbackTarget; // 吹き飛ばしたい対象（社長など）のRigidbody
     [SerializeField] private float blowbackForce = 15f; // 吹き飛ばす力
-    [SerializeField] private float blowbackUpForce = 5f; // 上に跳ね上げる力
+    [SerializeField] private float blowbackUpForce = 0f; // 上に跳ね上げる力（0にすると水平に飛びます）
+    [SerializeField] private float blowbackDrag = 2f;    // 吹き飛び中の空気抵抗（大きくするとゆっくり飛ぶ）
+    [SerializeField] private float blowbackAngularDrag = 2f; // 回転の抵抗
+    [SerializeField] private bool blowbackUseGravity = false; // 吹っ飛んだ後に落下させるかどうか
+    [SerializeField] private bool addBlowbackRotation = false; // 吹っ飛ぶときに回転させるかどうか
+    [SerializeField] private bool invertBlowbackDirection = false; // 吹き飛ばす方向を反転させる（前に来る場合にチェック）
+    
+    [Header("名刺表示設定")]
+    [SerializeField] private float finalCardDistance = 0.6f; // カメラから名刺までの距離（0.4から0.6へ微増）
 
     [Header("Settings")]
     [SerializeField] private float perfectTargetTime = 1.0f; // 成功の目標秒数
@@ -343,11 +351,11 @@ public class PresidentBattleManager : MonoBehaviour
 
             if (activeCam != null)
             {
-                // カメラの正面 0.4m の位置に配置
-                finalPlayerCard.transform.position = activeCam.transform.position + activeCam.transform.forward * 0.4f;
+                // カメラの正面指定距離（finalCardDistance）の位置に配置
+                finalPlayerCard.transform.position = activeCam.transform.position + activeCam.transform.forward * finalCardDistance;
                 // カメラの方を向かせる
                 finalPlayerCard.transform.rotation = activeCam.transform.rotation;
-                Debug.Log($"[FINAL] Forced card position to front of camera: {activeCam.name}");
+                Debug.Log($"[FINAL] Forced card position to {finalCardDistance}m in front of camera: {activeCam.name}");
             }
 
             finalPlayerCard.SetActive(true);
@@ -389,17 +397,35 @@ public class PresidentBattleManager : MonoBehaviour
             return;
         }
 
-        // 重力を有効にし、キネマティックを解除（アニメーション制御から物理制御へ）
+        // キネマティックを解除して物理演算を開始
         blowbackTarget.isKinematic = false;
-        blowbackTarget.useGravity = true;
+        
+        // 【修正】ユーザー設定に合わせて重力の有無を切り替える
+        // false にすると、地面に落ちずにそのまま後ろへ「浮遊」していきます
+        blowbackTarget.useGravity = blowbackUseGravity;
 
-        // 斜め後ろ（後ろ方向 + 上方向）へ力を加える
-        Vector3 forceDirection = (-blowbackTarget.transform.forward * blowbackForce) + (Vector3.up * blowbackUpForce);
+        // 空気抵抗を付けて「ゆっくり」飛ぶようにする
+        blowbackTarget.linearDamping = blowbackDrag;    // Unity 6 以前は drag
+        blowbackTarget.angularDamping = blowbackAngularDrag; // Unity 6 以前は angularDrag
+        
+        // 互換性のための記述（古いUnityの場合）
+        #if !UNITY_6_0_OR_NEWER
+        blowbackTarget.linearDamping = blowbackDrag;
+        blowbackTarget.angularDamping = blowbackAngularDrag;
+        #endif
+
+        // 【修正】斜め後ろではなく、後ろ（+ユーザー設定の上方向）へ力を加える
+        // モデルの向きによって逆転（前に来る）する場合は invertBlowbackDirection をオンにする
+        float directionMultiplier = invertBlowbackDirection ? 1f : -1f;
+        Vector3 forceDirection = (blowbackTarget.transform.forward * blowbackForce * directionMultiplier) + (Vector3.up * blowbackUpForce);
         blowbackTarget.AddForce(forceDirection, ForceMode.Impulse);
 
-        // トドメにランダムな回転を加える
-        Vector3 randomTorque = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)) * 10f;
-        blowbackTarget.AddTorque(randomTorque, ForceMode.Impulse);
+        // 【修正】回転させる設定の時だけトルクを加える
+        if (addBlowbackRotation)
+        {
+            Vector3 randomTorque = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)) * 10f;
+            blowbackTarget.AddTorque(randomTorque, ForceMode.Impulse);
+        }
 
         Debug.Log($"[FINAL] Applied blowback to {blowbackTarget.name} with force {forceDirection}");
     }
