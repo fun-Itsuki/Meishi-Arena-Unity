@@ -25,13 +25,14 @@ public class BusinessCardContent : MonoBehaviour
     public void UpdateCardDisplay()
     {
         // Instanceがない場合、シーン内を一度だけ検索してみる
-        if (ScoreManager.Instance == null)
+        // Instanceがない場合、シーン内を一度だけ検索してみる
+        ScoreManager sm = ScoreManager.Instance;
+        if (sm == null)
         {
-            var sm = FindFirstObjectByType<ScoreManager>();
+            sm = FindFirstObjectByType<ScoreManager>();
             if (sm != null)
             {
                 Debug.Log("[BusinessCardContent] ScoreManager found in scene via fallback search.");
-                // ScoreManager.AwakeでInstanceがセットされるはずだが、念のためこのフレームでも使えるようにする
             }
             else
             {
@@ -42,11 +43,11 @@ public class BusinessCardContent : MonoBehaviour
             }
         }
 
-        // ここまで来れば ScoreManager.Instance は有効なはず
+        // ここまで来れば sm は有効なはず
         if (companyNameText != null)
         {
-            companyNameText.text = ScoreManager.Instance.CompanyName;
-            Debug.Log($"[BusinessCardContent] Updated Company: {ScoreManager.Instance.CompanyName}");
+            companyNameText.text = sm.CompanyName;
+            Debug.Log($"[BusinessCardContent] Updated Company: {sm.CompanyName}");
         }
         else
         {
@@ -55,8 +56,8 @@ public class BusinessCardContent : MonoBehaviour
 
         if (playerNameText != null)
         {
-            playerNameText.text = ScoreManager.Instance.PlayerName;
-            Debug.Log($"[BusinessCardContent] Updated Player Name: {ScoreManager.Instance.PlayerName}");
+            playerNameText.text = sm.PlayerName;
+            Debug.Log($"[BusinessCardContent] Updated Player Name: {sm.PlayerName}");
         }
         else
         {

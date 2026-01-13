@@ -26,13 +26,14 @@ public class PresidentBattleManager : MonoBehaviour
 
     [Header("Blowback演出")]
     [SerializeField] private Rigidbody blowbackTarget; // 吹き飛ばしたい対象（社長など）のRigidbody
-    [SerializeField] private float blowbackForce = 15f; // 吹き飛ばす力
-    [SerializeField] private float blowbackUpForce = 0f; // 上に跳ね上げる力（0にすると水平に飛びます）
-    [SerializeField] private float blowbackDrag = 2f;    // 吹き飛び中の空気抵抗（大きくするとゆっくり飛ぶ）
+    [SerializeField] private float blowbackForce = 50f; // 吹き飛ばす力を強化 (15->50)
+    [SerializeField] private float blowbackUpForce = 0f; // 上に跳ね上げる力
+    [SerializeField] private float blowbackDrag = 0.5f;    // 空気抵抗を弱めて遠くまで飛ぶように調整 (2->0.5)
     [SerializeField] private float blowbackAngularDrag = 2f; // 回転の抵抗
     [SerializeField] private bool blowbackUseGravity = false; // 吹っ飛んだ後に落下させるかどうか
     [SerializeField] private bool addBlowbackRotation = false; // 吹っ飛ぶときに回転させるかどうか
-    [SerializeField] private bool invertBlowbackDirection = false; // 吹き飛ばす方向を反転させる（前に来る場合にチェック）
+    [SerializeField] private bool invertBlowbackDirection = false; // 吹き飛ばす方向を反転させる
+    [SerializeField] private string blowbackTriggerName = "Blowback"; // 吹っ飛ぶ瞬間に再生するアニメーションのトリガー名
     
     [Header("名刺表示設定")]
     [SerializeField] private float finalCardDistance = 0.6f; // カメラから名刺までの距離（0.4から0.6へ微増）
@@ -210,7 +211,42 @@ public class PresidentBattleManager : MonoBehaviour
             // ライトの動的制御（シャドウアトラスの負荷軽減）
             if (stageLights != null && i < stageLights.Length && stageLights[i] != null)
             {
-                stageLights[i].SetActive(i == activeCamIndex);
+                bool isLightActive = (i == activeCamIndex);
+                stageLights[i].SetActive(isLightActive);
+                
+                // 強力なシャドウアトラス対策：アクティブでないステージのライトのシャドウを完全にオフにする
+                Light lightComp = stageLights[i].GetComponent<Light>();
+                if (lightComp != null)
+                {
+                    lightComp.shadows = isLightActive ? LightShadows.Soft : LightShadows.None;
+                }
+            }
+        }
+
+        // さらに、独自のステージ管理外にあるシーン内の全ライトに対してもシャドウを制限する（オプション）
+        // 大量の警告が出るのを防ぐため、アクティブなステージライト以外はシャドウを無効化
+        Light[] allLights = FindObjectsByType<Light>(FindObjectsSortMode.None);
+        foreach (var l in allLights)
+        {
+            bool isStageLight = false;
+            if (stageLights != null)
+            {
+                foreach (var sl in stageLights)
+                {
+                    if (l.gameObject == sl) { isStageLight = true; break; }
+                }
+            }
+            
+            // ステージ管理下のライトで、かつ現在非アクティブなカメラのものは既に上で処理済み
+            // ここではステージ管理外（環境ライト等）のシャドウを落としてアトラスの空きを作る
+            if (!isStageLight)
+            {
+                // メインのディレクショナルライト等は残したいかもしれないが、
+                // 警告が出る場合はこれらも制限対象にする
+                if (l.type != LightType.Directional)
+                {
+                    l.shadows = LightShadows.None;
+                }
             }
         }
     }
@@ -276,7 +312,8 @@ public class PresidentBattleManager : MonoBehaviour
             PresidentAudioManager.Instance.PlayBGM(PresidentAudioManager.Instance.presidentVictoryBGM);
         }
 
-        yield return new WaitForSeconds(0.5f);
+        // 【改善】待機時間を0にし、曲の開始と同時にアクションを開始するように変更
+        // yield return new WaitForSeconds(0.5f);
 
         // すべてのアニメーターに対して特別なアニメーションを発動
         if (finalAnimators != null && finalAnimators.Length > 0)
@@ -285,14 +322,31 @@ public class PresidentBattleManager : MonoBehaviour
             {
                 if (anim == null) continue;
 
+                // デバッグ：Animatorが持っている全パラメータを出力
+                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                foreach (var p in anim.parameters) sb.Append(p.name).Append(", ");
+                // Debug.Log($"[FINAL] Checking Animator on {anim.name}. Available: {sb.ToString()}"); // ログを減らすためコメントアウト
+
                 if (HasParameter(anim, animationTrigger))
                 {
                     Debug.Log($"[FINAL] Triggering Animator: {anim.name} with trigger: {animationTrigger}");
                     anim.SetTrigger(animationTrigger);
+                    // 【究極】トリガーが効かない場合を考え、ステート名としても強制再生
+                    anim.Play(animationTrigger, 0, 0f);
+                    anim.Update(0f); // 即時ポーズ反映
+                }
+                else if (!string.IsNullOrEmpty(blowbackTriggerName) && HasParameter(anim, blowbackTriggerName))
+                {
+                    Debug.Log($"[FINAL] Fallback: '{animationTrigger}' not found on {anim.name}. Using '{blowbackTriggerName}' instead.");
+                    anim.SetTrigger(blowbackTriggerName);
+                    anim.Play(blowbackTriggerName, 0, 0f); // 強制再生
+                    anim.Update(0f); // 即時ポーズ反映
                 }
                 else
                 {
-                    Debug.LogError($"[FINAL] Animator Parameter '{animationTrigger}' NOT FOUND in {anim.name}!");
+                    // パラメータがなくても、とりあえずアニメーターを動かす
+                    Debug.LogWarning($"[FINAL] No suitable parameter found on {anim.name}. Forced animation refresh.");
+                    anim.Update(0.1f); 
                 }
                 
                 if (anim.runtimeAnimatorController == null)
@@ -304,21 +358,16 @@ public class PresidentBattleManager : MonoBehaviour
             Debug.LogWarning("Final Animators is EMPTY! Assign them in the Inspector.");
         }
 
-        // ここではまだリザルトパネルを出さず、アニメーションをしっかり見せる
-        // if (resultPanel != null) resultPanel.SetActive(true);
-        // if (resultText != null) resultText.text = "伝説の名刺交換...！\n君こそが、真の社長だ。";
+        // アニメーション開始と同時に名刺と吹っ飛びを開始（待機なし）
+        // yield return new WaitForSeconds(0.1f);
         
-        // アニメーション開始後、すぐ（0.1秒）に名刺とリザルトを出す
-        yield return new WaitForSeconds(0.1f);
-        
-        Debug.Log("[FINAL] Animation started. Showing results and card.");
+        Debug.Log("[FINAL] Animation & Blowback simultaneously starting.");
 
-        // 白いリザルトパネルは出さず、テキストのみで演出する
-        // if (resultPanel != null) 
-        // {
-        //     resultPanel.SetActive(true);
-        //     Debug.Log("[FINAL] Result Panel activated.");
-        // }
+        if (resultPanel != null) 
+        {
+            resultPanel.SetActive(true);
+            Debug.Log("[FINAL] Result Panel activated.");
+        }
         
         if (instructionText != null) 
         {
@@ -399,19 +448,93 @@ public class PresidentBattleManager : MonoBehaviour
 
         // キネマティックを解除して物理演算を開始
         blowbackTarget.isKinematic = false;
+        blowbackTarget.constraints = RigidbodyConstraints.None; // すべての回転・移動ロックを解除
+
+        // 【究極】もし親オブジェクトによって動きが制限されているなら、親子関係を解除する
+        if (blowbackTarget.transform.parent != null)
+        {
+            Debug.Log($"[FINAL] Unparenting {blowbackTarget.name} from {blowbackTarget.transform.parent.name} to allow 100% free movement.");
+            // 吹っ飛ぶ瞬間に一族から離脱させる（完全に自由な物理ボディにする）
+            blowbackTarget.transform.SetParent(null);
+        }
+
+        // 【新機能】物理演算（AddForce）を邪魔するコンポーネントを一時的に無効化する
+        var agent = blowbackTarget.GetComponent<UnityEngine.AI.NavMeshAgent>();
+        if (agent == null) agent = blowbackTarget.GetComponentInParent<UnityEngine.AI.NavMeshAgent>();
+        if (agent != null) agent.enabled = false;
+        
+        var charCtrl = blowbackTarget.GetComponent<CharacterController>();
+        if (charCtrl == null) charCtrl = blowbackTarget.GetComponentInParent<CharacterController>();
+        if (charCtrl != null) charCtrl.enabled = false;
+
+        // Concave Mesh Collider対策
+        MeshCollider[] meshColliders = blowbackTarget.GetComponentsInChildren<MeshCollider>();
+        foreach (var mc in meshColliders)
+        {
+            if (!mc.convex)
+            {
+                mc.convex = true;
+                Debug.Log($"[FINAL] Forced MeshCollider on {mc.name} to CONVEX to avoid Physics error.");
+            }
+        }
+        
+        // 【追加】吹っ飛ぶ対象にアニメーターがあれば、指定したトリガーを引く
+        Animator targetAnim = blowbackTarget.GetComponent<Animator>();
+        if (targetAnim == null) targetAnim = blowbackTarget.GetComponentInChildren<Animator>(); // 子オブジェクトも探す
+
+        if (targetAnim != null)
+        {
+            // デバッグログ：Animatorが持っているパラメータをすべて出力して、名前が合っているか確認しやすくする
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            foreach (var p in targetAnim.parameters) sb.Append(p.name).Append(", ");
+            Debug.Log($"[FINAL] Animator found on {targetAnim.name}. Parameters: {sb.ToString()}");
+
+            // RootMotionをオフにしないと、物理による吹っ飛び（AddForce）よりもアニメーション内の移動が優先されてしまいます
+            targetAnim.applyRootMotion = false;
+            
+            if (!string.IsNullOrEmpty(blowbackTriggerName))
+            {
+                // パラメータが存在するかチェックしてから実行
+                if (HasParameter(targetAnim, blowbackTriggerName))
+                {
+                    targetAnim.SetTrigger(blowbackTriggerName);
+                    // 強制再生も併用
+                    targetAnim.Play(blowbackTriggerName, 0, 0f);
+                    // 【即時反映】次フレームを待たずに今すぐポーズを確定させる
+                    targetAnim.Update(0f);
+                    Debug.Log($"[FINAL] EXECUTE: Set trigger & Play state & Force Update on {targetAnim.name}");
+                }
+                else
+                {
+                    Debug.LogError($"[FINAL] ERROR: Trigger '{blowbackTriggerName}' NOT FOUND on {targetAnim.name}! Available parameters: {sb.ToString()}");
+                }
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"[FINAL] Animator NOT FOUND on {blowbackTarget.name} or its children.");
+        }
         
         // 【修正】ユーザー設定に合わせて重力の有無を切り替える
-        // false にすると、地面に落ちずにそのまま後ろへ「浮遊」していきます
         blowbackTarget.useGravity = blowbackUseGravity;
 
-        // 空気抵抗を付けて「ゆっくり」飛ぶようにする
-        blowbackTarget.linearDamping = blowbackDrag;    // Unity 6 以前は drag
-        blowbackTarget.angularDamping = blowbackAngularDrag; // Unity 6 以前は angularDrag
-        
-        // 互換性のための記述（古いUnityの場合）
-        #if !UNITY_6_0_OR_NEWER
+        // 空気抵抗の設定（Unity 6 以降なら linearDamping / 以前なら drag）
+        // ユーザーの環境（Unity 6）に合わせてプロパティ名を定義
+        #if UNITY_6_0_OR_NEWER
         blowbackTarget.linearDamping = blowbackDrag;
         blowbackTarget.angularDamping = blowbackAngularDrag;
+        #else
+        // 旧バージョンでも動作を確保（Unity 6 なら自動的に linearDamping にマッピングされますが、念のため記述）
+        try {
+            blowbackTarget.linearDamping = blowbackDrag;
+            blowbackTarget.angularDamping = blowbackAngularDrag;
+        } catch {
+            // 万が一旧仕様のままでエラーになる場合のみ drag を使用
+            #pragma warning disable CS0618
+            blowbackTarget.drag = blowbackDrag;
+            blowbackTarget.angularDrag = blowbackAngularDrag;
+            #pragma warning restore CS0618
+        }
         #endif
 
         // 【修正】斜め後ろではなく、後ろ（+ユーザー設定の上方向）へ力を加える
