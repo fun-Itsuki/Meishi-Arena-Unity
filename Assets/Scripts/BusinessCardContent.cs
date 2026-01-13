@@ -24,12 +24,25 @@ public class BusinessCardContent : MonoBehaviour
     /// </summary>
     public void UpdateCardDisplay()
     {
+        // Instanceがない場合、シーン内を一度だけ検索してみる
         if (ScoreManager.Instance == null)
         {
-            Debug.LogWarning("[BusinessCardContent] ScoreManager not found. Cannot update card text.");
-            return;
+            var sm = FindFirstObjectByType<ScoreManager>();
+            if (sm != null)
+            {
+                Debug.Log("[BusinessCardContent] ScoreManager found in scene via fallback search.");
+                // ScoreManager.AwakeでInstanceがセットされるはずだが、念のためこのフレームでも使えるようにする
+            }
+            else
+            {
+                Debug.LogWarning("[BusinessCardContent] ScoreManager not found in scene or instance. Using default values.");
+                if (companyNameText != null) companyNameText.text = "フリーランス";
+                if (playerNameText != null) playerNameText.text = "名無し";
+                return;
+            }
         }
 
+        // ここまで来れば ScoreManager.Instance は有効なはず
         if (companyNameText != null)
         {
             companyNameText.text = ScoreManager.Instance.CompanyName;

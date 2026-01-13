@@ -414,8 +414,25 @@ public class CardBattleLogic : MonoBehaviour
         ScoreManager.Instance.SuccessCount = successCount;
         ScoreManager.Instance.FailureCount = failureCount;
 
-        // リザルト画面へ遷移
-        Invoke(nameof(LoadResultScene), resultTransitionDelay);
+        // リザルト画面または社長戦へ遷移
+        if (remainingLives > 0 && ScoreManager.Instance.GetPlayerRankLevel() >= 7)
+        {
+            Debug.Log("Promotion to Director! Transitioning to President Battle...");
+            Invoke(nameof(LoadPresidentBattleScene), resultTransitionDelay);
+        }
+        else
+        {
+            Invoke(nameof(LoadResultScene), resultTransitionDelay);
+        }
+    }
+
+    /// <summary>
+    /// 社長戦シーンをロード
+    /// </summary>
+    void LoadPresidentBattleScene()
+    {
+        Debug.Log("Loading President Battle Scene...");
+        SceneManager.LoadScene("PresidentBattleScene");
     }
 
     /// <summary>
