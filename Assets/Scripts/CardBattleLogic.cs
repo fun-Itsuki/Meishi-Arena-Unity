@@ -204,6 +204,9 @@ public class CardBattleLogic : MonoBehaviour
         // プレイヤーの現在の役職レベルを取得
         int playerLevel = ScoreManager.Instance != null ? ScoreManager.Instance.GetPlayerRankLevel() : 0;
         
+        // プレイヤーの役職に応じてタイマー時間を設定
+        exchangeTimeLimit = GetExchangeTimeLimitByRank(playerLevel);
+        
         // プレイヤーの役職の上下ひとつずつ（-1, 0, +1）の範囲でランダムに選ぶ
         int npcLevel = playerLevel + Random.Range(-1, 2);
         
@@ -212,13 +215,14 @@ public class CardBattleLogic : MonoBehaviour
         
         currentNPCRank = (NPCRank)npcLevel;
         
-        Debug.Log($"Exchange {totalExchangeCount + 1} started. NPC Rank: {currentNPCRank}, Remaining Lives: {remainingLives}");
+        Debug.Log($"Exchange {totalExchangeCount + 1} started. NPC Rank: {currentNPCRank}, Player Level: {playerLevel}, Time Limit: {exchangeTimeLimit}s, Remaining Lives: {remainingLives}");
 
         // UI更新
         if (uiManager != null)
         {
             uiManager.UpdateExchangeCount(totalExchangeCount + 1); // 総交換回数のみ表示
             uiManager.UpdateNPCRank(currentNPCRank);
+            uiManager.maxTimerDuration = exchangeTimeLimit; // UI側のタイマー最大値も同期
             uiManager.UpdateTimer(exchangeTimeLimit);
             uiManager.UpdateLives(remainingLives); // ライフ表示を更新
         }
@@ -430,5 +434,23 @@ public class CardBattleLogic : MonoBehaviour
         {
             playerController.OnSubmit -= OnPlayerSubmit;
         }
+    }
+
+    /// <summary>
+    /// プレイヤーの役職レベルに基づいて交換時間制限を計算
+    /// レベル 0（一般社員）: 2.0秒
+    /// レベル 7（常務）: 1.0秒
+    /// その間は線形補間で計算
+    /// </summary>
+    private float GetExchangeTimeLimitByRank(int rankLevel)
+    {
+        // rankLevel を 0～7 の範囲にクランプ
+        rankLevel = Mathf.Clamp(rankLevel, 0, 7);
+        
+        // 線形補間: レベル 0 で 2.0秒、レベル 7 で 1.0秒
+        // formula: 2.0 - (rankLevel / 7) * 1.0
+        float timeLimit = 2.0f - (rankLevel / 7.0f) * 1.0f;
+        
+        return timeLimit;
     }
 }
