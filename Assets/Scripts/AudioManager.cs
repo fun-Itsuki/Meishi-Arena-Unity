@@ -39,6 +39,8 @@ public class AudioManager : MonoBehaviour
     public AudioClip bgmClip;
     [Tooltip("タイトルシーン用のBGM（例: 古代神殿_loop_free））")]
     public AudioClip titleBGM;
+    [Tooltip("メインシーン用のBGM（例: main.mp3）")]
+    public AudioClip mainBGM;
     [Tooltip("聖戦（バトル）用のBGM（例: seisen.mp3）")]
     public AudioClip seisenBGM;
     private AudioSource bgmSource;

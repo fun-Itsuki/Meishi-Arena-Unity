@@ -295,6 +295,7 @@ MonoBehaviour:
   damageVoices: []
   bgmClip: {fileID: 0}
   titleBGM: {fileID: 8300000, guid: 9c0f561474397484d80201f4fbfeab60, type: 3}
+  mainBGM: {fileID: 8300000, guid: 776a32d013e1479418999befa6d92783, type: 3}
   seisenBGM: {fileID: 8300000, guid: 509ba0aa2d58dbe43a0a40efd201c2a2, type: 3}
 --- !u!4 &414163440
 Transform:

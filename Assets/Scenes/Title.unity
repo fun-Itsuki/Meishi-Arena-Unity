@@ -1305,8 +1305,10 @@ MonoBehaviour:
   heartDeathSound: {fileID: 8300000, guid: bbccbcc0fa9fee143a22272679f2eac1, type: 3}
   correctAnswerSound: {fileID: 8300000, guid: 2dd8de14ac544864ea57c2270948c3d8, type: 3}
   rankUpSound: {fileID: 8300000, guid: c12462e78bf7db84289785fe8a10ceaf, type: 3}
+  damageVoices: []
   bgmClip: {fileID: 0}
   titleBGM: {fileID: 8300000, guid: 9c0f561474397484d80201f4fbfeab60, type: 3}
+  mainBGM: {fileID: 8300000, guid: 776a32d013e1479418999befa6d92783, type: 3}
   seisenBGM: {fileID: 8300000, guid: 509ba0aa2d58dbe43a0a40efd201c2a2, type: 3}
 --- !u!4 &575050213
 Transform:
