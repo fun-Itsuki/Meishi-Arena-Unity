@@ -153,13 +153,16 @@ public class TitleSceneManager : MonoBehaviour
     {
         if (ScoreManager.Instance == null) return;
 
+        string nextScene = "MainScene";
+
         if (currentSelectionMode == SelectionMode.NewGame)
         {
             ScoreManager.Instance.ClearSlot(slot);
+            nextScene = "PlayerSetupScene"; // 新規なら設定画面へ
         }
 
         ScoreManager.Instance.SetActiveSlot(slot);
-        StartGame();
+        StartGame(nextScene);
     }
 
     private void ShowStatusMessage(string msg)
@@ -222,9 +225,8 @@ public class TitleSceneManager : MonoBehaviour
         }
     }
 
-    private void StartGame()
+    private void StartGame(string sceneName)
     {
-        string sceneName = "MainScene";
         Debug.Log($"[TitleSceneManager] Attempting to load scene: {sceneName}");
         
         // シーンが存在するかチェック（デバッグ用）

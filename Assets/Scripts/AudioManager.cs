@@ -31,6 +31,9 @@ public class AudioManager : MonoBehaviour
     [Tooltip("役職が上がったときの効果音（例: 決定ボタンを押す10(1)）")]
     public AudioClip rankUpSound;
 
+    [Tooltip("ダメージを受けた時のボイス（複数登録でランダム再生）")]
+    public AudioClip[] damageVoices;
+
     [Header("BGM")]
     [Tooltip("背景音楽のクリップ")]
     public AudioClip bgmClip;
@@ -241,18 +244,18 @@ public class AudioManager : MonoBehaviour
     }
 
     /// <summary>
-    /// BGMが再生中かどうかを確認
+    /// ダメージボイスをランダムに再生
     /// </summary>
-    public bool IsBGMPlaying()
+    public void PlayDamageVoice()
     {
-        return bgmSource != null && bgmSource.isPlaying;
-    }
-
-    /// <summary>
-    /// 現在の BGM クリップを取得
-    /// </summary>
-    public AudioClip GetCurrentBGMClip()
-    {
-        return bgmSource != null ? bgmSource.clip : null;
+        if (damageVoices != null && damageVoices.Length > 0 && audioSource != null)
+        {
+            int index = Random.Range(0, damageVoices.Length);
+            if (damageVoices[index] != null)
+            {
+                audioSource.PlayOneShot(damageVoices[index]);
+                Debug.Log($"Playing damage voice: {damageVoices[index].name}");
+            }
+        }
     }
 }

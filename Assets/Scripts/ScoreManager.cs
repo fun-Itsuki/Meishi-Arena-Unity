@@ -7,6 +7,8 @@ public class SaveData
 {
     public int totalExchangedCount = 0;
     public int highScore = 0;
+    public string playerName = "名無し";
+    public string companyName = "フリーランス";
 }
 
 public class ScoreManager : MonoBehaviour
@@ -33,6 +35,18 @@ public class ScoreManager : MonoBehaviour
     private int activeSlotIndex = 0;
 
     public int TotalExchangedCount => currentSaveData.totalExchangedCount;
+    public string PlayerName => currentSaveData.playerName;
+    public string CompanyName => currentSaveData.companyName;
+
+    /// <summary>
+    /// プレイヤー名と会社名を更新して保存する
+    /// </summary>
+    public void UpdatePlayerProfile(string name, string company)
+    {
+        currentSaveData.playerName = string.IsNullOrEmpty(name) ? "名無し" : name;
+        currentSaveData.companyName = string.IsNullOrEmpty(company) ? "フリーランス" : company;
+        Save();
+    }
 
     /// <summary>
     /// 指定したスロットにセーブファイルが存在するか

@@ -129,7 +129,7 @@ public class BattleUIManager : MonoBehaviour
             // プレイヤーの役職を更新
             if (playerTitleText != null)
             {
-                playerTitleText.text = $"現在の役職: {ScoreManager.Instance.GetPlayerTitle()}";
+                playerTitleText.text = $"{ScoreManager.Instance.PlayerName} さんの役職: {ScoreManager.Instance.GetPlayerTitle()}";
             }
         }
     }

@@ -77,9 +77,6 @@ public class CardBattleLogic : MonoBehaviour
     private int successCount = 0;
     private int failureCount = 0;
 
-    // BGM ループ用
-    private bool isBGMFinished = false; // BGM が終了したことを示すフラグ
-
     void Start()
     {
         // NPCカードの初期位置を保存
@@ -123,18 +120,6 @@ public class CardBattleLogic : MonoBehaviour
 
     void Update()
     {
-        // BGM が停止しているかつハートが残っている場合、BGM を再度再生
-        if (remainingLives > 0 && AudioManager.Instance != null)
-        {
-            // BGM が停止している場合、再度再生
-            if (!AudioManager.Instance.IsBGMPlaying())
-            {
-                Debug.Log("BGM has stopped. Restarting BGM as hearts remain.");
-                // BGM を再度再生
-                AudioManager.Instance.PlayBGM(AudioManager.Instance.seisenBGM);
-            }
-        }
-
         switch (currentState)
         {
             case BattleState.WaitingForTransition:
@@ -345,14 +330,18 @@ public class CardBattleLogic : MonoBehaviour
                 uiManager.UpdateLives(remainingLives);
             }
 
-            // 効果音再生: 1つ目/2つ目/0(死亡)の順で分岐
+            // 効果音・ボイス再生
             if (AudioManager.Instance != null)
             {
+                // ランダムダメージボイス
+                AudioManager.Instance.PlayDamageVoice();
+
+                // ライフ減少の効果音
                 if (remainingLives <= 0)
-                    {   
-                        AudioManager.Instance.StopBGM();
-                        AudioManager.Instance.PlayHeartDeath();
-                    }
+                {
+                    AudioManager.Instance.StopBGM();
+                    AudioManager.Instance.PlayHeartDeath();
+                }
                 else if (prevLives == 3 && remainingLives == 2)
                 {
                     AudioManager.Instance.PlayHeartHurt1(); // 1つ目が減った

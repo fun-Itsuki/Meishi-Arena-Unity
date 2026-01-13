@@ -58,7 +58,7 @@ public class ResultManager : MonoBehaviour
         if (titleText != null)
         {
             string playerTitle = ScoreManager.Instance.GetPlayerTitle(battleScore);
-            titleText.text = $"役職: {playerTitle}";
+            titleText.text = $"{ScoreManager.Instance.PlayerName} さんの最終役職: {playerTitle}";
         }
 
         // 累計表示
