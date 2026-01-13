@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: ea42a136d3d61f44ba5d3605828c1cab
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - buttonsRoot: {instanceID: 0}
+  - rulesPanel: {instanceID: 0}
+  - rolesPanel: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

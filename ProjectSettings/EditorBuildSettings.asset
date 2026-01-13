@@ -23,6 +23,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PresidentBattleScene.unity
     guid: 78197795286828045a062131966a0c1b
+  - enabled: 1
+    path: Assets/Scenes/EndRoll.unity
+    guid: c4d59152223945b4cb308805d80eca9c
+  - enabled: 1
+    path: Assets/Scenes/IntroVideo.unity
+    guid: fa3654b1052fbc4478191fcb4ce4ea87
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

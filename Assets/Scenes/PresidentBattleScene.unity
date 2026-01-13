@@ -182,7 +182,7 @@ MonoBehaviour:
   gaugeLoopDuration: 1.5
   perfectThreshold: 0.15
   goodThreshold: 0.4
-  nextSceneName: ResultScene
+  nextSceneName: EndRoll
 --- !u!4 &29340135
 Transform:
   m_ObjectHideFlags: 0
