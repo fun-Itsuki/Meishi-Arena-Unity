@@ -34,6 +34,9 @@ public class AudioManager : MonoBehaviour
     [Tooltip("ダメージを受けた時のボイス（複数登録でランダム再生）")]
     public AudioClip[] damageVoices;
 
+    [Tooltip("正解時に流す坂下ボイス（複数登録でランダム再生）")]
+    public AudioClip[] sakashitaCorrectVoices;
+
     [Header("BGM")]
     [Tooltip("背景音楽のクリップ")]
     public AudioClip bgmClip;
@@ -43,6 +46,12 @@ public class AudioManager : MonoBehaviour
     public AudioClip mainBGM;
     [Tooltip("聖戦（バトル）用のBGM（例: seisen.mp3）")]
     public AudioClip seisenBGM;
+    [Range(0f, 1f)]
+    [Tooltip("BGMの音量（0～1）")]
+    public float bgmVolume = 0.8f;
+    [Range(0f, 1f)]
+    [Tooltip("聖戦BGM（seisen）の音量（0～1）")]
+    public float seisenBGMVolume = 0.5f;
     private AudioSource bgmSource;
     private AudioSource audioSource;
 
@@ -101,8 +110,20 @@ public class AudioManager : MonoBehaviour
         }
 
         bgmSource.clip = clipToPlay;
+        
+        // seisen の場合は seisenBGMVolume を使用、それ以外は bgmVolume を使用
+        if (clipToPlay == seisenBGM)
+        {
+            bgmSource.volume = seisenBGMVolume;
+            Debug.Log($"Playing BGM: {clipToPlay.name} with seisen volume: {seisenBGMVolume}");
+        }
+        else
+        {
+            bgmSource.volume = bgmVolume;
+            Debug.Log($"Playing BGM: {clipToPlay.name} with volume: {bgmVolume}");
+        }
+        
         bgmSource.Play();
-        Debug.Log($"Playing BGM: {clipToPlay.name}");
     }
 
     /// <summary>
@@ -215,6 +236,7 @@ public class AudioManager : MonoBehaviour
 
     /// <summary>
     /// 正解（ハートが減らなかった）時の効果音を再生
+    /// クイズ正解5 + 坂下ボイスをランダムに再生
     /// </summary>
     public void PlayCorrectSound()
     {
@@ -226,6 +248,29 @@ public class AudioManager : MonoBehaviour
         else
         {
             Debug.LogWarning("correctAnswerSound or AudioSource is not assigned!");
+        }
+
+        // 坂下ボイスをランダムに再生
+        PlayRandomSakashitaVoice();
+    }
+
+    /// <summary>
+    /// 坂下ボイスをランダムに再生
+    /// </summary>
+    private void PlayRandomSakashitaVoice()
+    {
+        if (sakashitaCorrectVoices != null && sakashitaCorrectVoices.Length > 0 && audioSource != null)
+        {
+            int index = Random.Range(0, sakashitaCorrectVoices.Length);
+            if (sakashitaCorrectVoices[index] != null)
+            {
+                audioSource.PlayOneShot(sakashitaCorrectVoices[index]);
+                Debug.Log($"Playing sakashita voice: {sakashitaCorrectVoices[index].name}");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("sakashitaCorrectVoices is not assigned or empty!");
         }
     }
 

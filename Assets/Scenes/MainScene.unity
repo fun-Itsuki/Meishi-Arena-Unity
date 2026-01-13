@@ -1393,6 +1393,10 @@ MonoBehaviour:
   correctAnswerSound: {fileID: 0}
   rankUpSound: {fileID: 0}
   damageVoices: []
+  sakashitaCorrectVoices:
+  - {fileID: 8300000, guid: f8f75f563dae87d4b9861c2a62835f6c, type: 3}
+  - {fileID: 8300000, guid: d5ffa2fbc58a3a7479109132c513401b, type: 3}
+  - {fileID: 8300000, guid: ebe7f7e56e6fc0f489382c5726e2adf0, type: 3}
   bgmClip: {fileID: 0}
   titleBGM: {fileID: 8300000, guid: 9c0f561474397484d80201f4fbfeab60, type: 3}
   mainBGM: {fileID: 8300000, guid: 776a32d013e1479418999befa6d92783, type: 3}
