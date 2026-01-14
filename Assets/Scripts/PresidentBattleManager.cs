@@ -550,7 +550,7 @@ public class PresidentBattleManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError($"[FINAL] ERROR: Trigger '{blowbackTriggerName}' NOT FOUND on {targetAnim.name}! Available parameters: {sb.ToString()}");
+                    Debug.LogWarning($"[FINAL] Trigger '{blowbackTriggerName}' not found on {targetAnim.name}. Skipping animation trigger. Available: {sb.ToString()}");
                 }
             }
         }
