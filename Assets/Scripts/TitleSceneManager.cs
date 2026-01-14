@@ -205,6 +205,10 @@ public class TitleSceneManager : MonoBehaviour
 
     private void Start()
     {
+        // タイトルシーンに来たら必ずマウスカーソルを表示・ロック解除する
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
         // タイトルシーン開始時にタイトル用BGMを再生
         if (AudioManager.Instance != null)
         {

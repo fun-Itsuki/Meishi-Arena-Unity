@@ -146,13 +146,15 @@ public class ScoreManager : MonoBehaviour
     /// </summary>
     public int GetPlayerRankLevel(int score)
     {
-        if (score >= 12000) return 7; // 常務
-        if (score >= 9000) return 6;  // 本部長
-        if (score >= 6500) return 5;  // 部長
-        if (score >= 4500) return 4;  // 次長
-        if (score >= 3000) return 3;  // 課長
-        if (score >= 2000) return 2;  // 係長
-        if (score >= 1000) return 1;  // 主任
+        if (score >= 9000) return 9; // 副社長
+        if (score >= 8000) return 8; // 専務
+        if (score >= 7000) return 7; // 常務
+        if (score >= 6000) return 6; // 本部長
+        if (score >= 5000) return 5; // 部長
+        if (score >= 4000) return 4; // 次長
+        if (score >= 3000) return 3; // 課長
+        if (score >= 2000) return 2; // 係長
+        if (score >= 1000) return 1; // 主任
         return 0; // 一般社員
     }
 
@@ -171,6 +173,8 @@ public class ScoreManager : MonoBehaviour
     {
         switch (GetPlayerRankLevel(score))
         {
+            case 9: return "副社長";
+            case 8: return "専務";
             case 7: return "常務";
             case 6: return "本部長";
             case 5: return "部長";

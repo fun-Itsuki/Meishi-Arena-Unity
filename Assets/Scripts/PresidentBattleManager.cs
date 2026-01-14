@@ -13,6 +13,7 @@ public class PresidentBattleManager : MonoBehaviour
     [SerializeField] private TMP_Text stageText;
     [SerializeField] private GameObject resultPanel;
     [SerializeField] private TMP_Text resultText;
+    [SerializeField] private GameObject openingPanel; // オープニング用の黒背景パネル
 
     [Header("Player Upgrades (3D Models)")]
     [SerializeField] private GameObject[] playerUpgrades; // 0: Tier1, 1: Tier2, 2: Tier3
@@ -86,6 +87,9 @@ public class PresidentBattleManager : MonoBehaviour
             PresidentAudioManager.Instance.PlayBGM(PresidentAudioManager.Instance.presidentBGM);
         }
 
+        // オープニング演出開始
+        StartCoroutine(ShowOpeningMessage());
+
         // ターゲットマーカーを1秒の場所に配置
         if (targetMarker != null)
         {
@@ -105,6 +109,46 @@ public class PresidentBattleManager : MonoBehaviour
         if (finalPlayerCard != null) finalPlayerCard.SetActive(false);
 
         UpdateCameras();
+    }
+
+    private System.Collections.IEnumerator ShowOpeningMessage()
+    {
+        // 入力をロックしてメッセージに集中させる
+        isInputLocked = true;
+        stageTimer = 0f; // タイマーも止める（または0にしておく）
+
+        // 黒背景を表示
+        if (openingPanel != null) 
+        {
+            openingPanel.SetActive(true);
+            // 黒背景が表示された後、テキストが隠れないようにテキストを最前面（描画順の最後）に持ってくる
+            if (instructionText != null)
+            {
+                instructionText.transform.SetAsLastSibling();
+            }
+        }
+
+        // 昇進メッセージを表示
+        if (instructionText != null)
+        {
+            instructionText.text = "副社長になり社長への挑戦権を手に入れた";
+        }
+
+        // 3秒待機（ユーザーが読む時間）
+        yield return new WaitForSeconds(3.0f);
+
+        // 黒背景を非表示
+        if (openingPanel != null) openingPanel.SetActive(false);
+
+        // ゲーム説明に切り替え
+        if (instructionText != null)
+        {
+            instructionText.text = "君の実力を見せてみろ... (Spaceで止めろ！)";
+        }
+
+        // 入力ロック解除
+        isInputLocked = false;
+        stageTimer = 0f; // 開始タイミングをリセット
     }
 
     private void Update()

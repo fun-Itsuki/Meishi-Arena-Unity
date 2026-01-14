@@ -27,7 +27,7 @@ public class CardBattleLogic : MonoBehaviour
 
     [Header("Score Settings")]
     [Tooltip("成功時のスコア")]
-    public int successScore = 100;
+    public int successScore = 1000;
     
     [Tooltip("失敗時のスコア")]
     public int failureScore = -100;
@@ -84,6 +84,9 @@ public class CardBattleLogic : MonoBehaviour
         {
             npcInitialPosition = npcCard.position;
         }
+
+        // 【修正】Inspectorの設定値に関わらず、強制的に1000点にする
+        successScore = 1000;
 
         // ライフを初期化
         remainingLives = maxLives;
@@ -378,8 +381,14 @@ public class CardBattleLogic : MonoBehaviour
         }
 
         // ゲームオーバーチェック（ライフ0以下）
-        if (remainingLives <= 0)
+        // または、すでに常務（Rank 7）に昇進している場合は、人数を待たずに即座に社長室へ！
+        // ゲームオーバーチェック（ライフ0以下）
+        // または、すでに副社長（Rank 9）に昇進している場合は、人数を待たずに即座に社長室へ！
+        int currentRank = ScoreManager.Instance != null ? ScoreManager.Instance.GetPlayerRankLevel() : 0;
+
+        if (remainingLives <= 0 || currentRank >= 9)
         {
+            if (currentRank >= 9) Debug.Log("Player reached Rank 9 (Vice President)! Proceeding to President Battle immediately.");
             FinishGame();
         }
         else
@@ -415,9 +424,9 @@ public class CardBattleLogic : MonoBehaviour
         ScoreManager.Instance.FailureCount = failureCount;
 
         // リザルト画面または社長戦へ遷移
-        if (remainingLives > 0 && ScoreManager.Instance.GetPlayerRankLevel() >= 7)
+        if (remainingLives > 0 && ScoreManager.Instance.GetPlayerRankLevel() >= 9)
         {
-            Debug.Log("Promotion to Director! Transitioning to President Battle...");
+            Debug.Log("Promotion to President! Transitioning to President Battle...");
             Invoke(nameof(LoadPresidentBattleScene), resultTransitionDelay);
         }
         else
@@ -461,12 +470,12 @@ public class CardBattleLogic : MonoBehaviour
     /// </summary>
     private float GetExchangeTimeLimitByRank(int rankLevel)
     {
-        // rankLevel を 0～7 の範囲にクランプ
-        rankLevel = Mathf.Clamp(rankLevel, 0, 7);
+        // rankLevel を 0～9 の範囲にクランプ
+        rankLevel = Mathf.Clamp(rankLevel, 0, 9);
         
-        // 線形補間: レベル 0 で 2.0秒、レベル 7 で 1.0秒
-        // formula: 2.0 - (rankLevel / 7) * 1.0
-        float timeLimit = 2.0f - (rankLevel / 7.0f) * 1.0f;
+        // 線形補間: レベル 0 で 2.0秒、レベル 9 で 1.0秒
+        // formula: 2.0 - (rankLevel / 9) * 1.0
+        float timeLimit = 2.0f - (rankLevel / 9.0f) * 1.0f;
         
         return timeLimit;
     }
